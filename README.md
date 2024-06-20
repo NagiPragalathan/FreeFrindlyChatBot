@@ -67,7 +67,7 @@ arduino
 
 Copy code
 
-`FreeFriendlyChatBot/
+``` FreeFriendlyChatBot/
 ├── app.py
 ├── chatbot/
 │   ├── __init__.py
@@ -82,7 +82,8 @@ Copy code
 │   └── js/
 │       └── script.js
 ├── requirements.txt
-└── README.md` 
+└── README.md
+```
 
 ## Usage
 
