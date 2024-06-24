@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talking Head with Speech</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+
+        .main-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .side-container {
+            height: 100%;
+            width: 20%;
+            background: white;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            position: absolute;
+            justify-content: space-around;
+        }
+
+        .left-cont {
+            left: 0;
+        }
+
+        .right-cont {
+            right: 0;
+        }
+
+        .side-button {
+            background: #ececec;
+            color: rebeccapurple;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px 0;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 80%;
+            font-size: 16px;
+        }
+
+        .side-button:hover {
+            background: lightgray;
+        }
+
+        .container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #talking-head-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        #talking-head {
+            max-width: 100%;
+            display: block;
+            border-radius: 10px;
+        }
+
+        #mouth-image {
+            position: absolute;
+            top: 52.3%;
+            left: 49%;
+            width: 8.3%;
+            transform: translate(-50%, -50%);
+        }
+
+        #text-display {
+            margin-top: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        #text-input {
+            padding: 10px;
+            font-size: 18px;
+            width: 300px;
+            margin-bottom: 20px;
+        }
+
+        #speak-button, #stop-button {
+            padding: 10px 20px;
+            font-size: 18px;
+            margin: 5px;
+            background: rebeccapurple;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #speak-button:hover, #stop-button:hover {
+            background: darkmagenta;
+        }
+
+        #voice-select {
+            margin-top: 10px;
+            font-size: 18px;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        #conversation-container {
+            max-width: 96%;
+            width: 100%;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            height: 20vh;
+            margin-bottom: 0;
+        }
+
+        .message {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .user-message {
+            justify-content: flex-end;
+            background-color: #DCF8C6;
+        }
+
+        .ai-message {
+            justify-content: flex-start;
+            background-color: #E5E5EA;
+        }
+
+        .message-content {
+            max-width: 70%;
+        }
+
+        #stop-button {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="side-container left-cont">
+            <button class="side-button">Home</button>
+            <button class="side-button">About</button>
+            <button class="side-button">Contact</button>
+        </div>
+        <div>
+            <div class="container">
+                <div>
+                    <input type="text" id="text-input" placeholder="Enter text to speak">
+                    <button id="speak-button">Send</button>
+                    <button id="stop-button">Stop</button>
+                </div>
+                <select id="voice-select"></select>
+            </div>
+            <div class="container">
+                <div id="talking-head-container">
+                    <img id="talking-head" src="https://github.com/NagiPragalathan/GeeksforGeeks_files/blob/main/finalty/ezgif-3-59b3d85f5c.gif?raw=true" alt="Talking Head">
+                    <img id="mouth-image" src="https://github.com/NagiPragalathan/GeeksforGeeks_files/blob/main/finalty/Screenshot%202024-06-24%20194136.png?raw=true" alt="Mouth Image">
+                </div>
+                <div id="text-display"></div>
+            </div>
+            <div id="conversation-container"></div>
+        </div>
+        <div class="side-container right-cont">
+            <button class="side-button">Settings</button>
+            <button class="side-button">Profile</button>
+            <button class="side-button">Logout</button>
+        </div>
+    </div>
+
+    <script>
+        const talkingHead = document.getElementById('talking-head');
+        const mouthImage = document.getElementById('mouth-image');
+        const textDisplay = document.getElementById('text-display');
+        const textInput = document.getElementById('text-input');
+        const speakButton = document.getElementById('speak-button');
+        const stopButton = document.getElementById('stop-button');
+        const voiceSelect = document.getElementById('voice-select');
+        const conversationContainer = document.getElementById('conversation-container');
+
+        const synth = window.speechSynthesis;
+        let voices = [];
+        let currentUtterance = null;
+
+        function populateVoiceList() {
+            voices = synth.getVoices();
+            voiceSelect.innerHTML = '';
+            voices.forEach((voice, i) => {
+                const option = document.createElement('option');
+                option.textContent = `${voice.name} (${voice.lang})`;
+                option.value = i;
+                voiceSelect.appendChild(option);
+            });
+        }
+
+        function addMessage(content, sender) {
+            const message = document.createElement('div');
+            message.classList.add('message', sender === 'user' ? 'user-message' : 'ai-message');
+            const messageContent = document.createElement('div');
+            messageContent.classList.add('message-content');
+            messageContent.textContent = content;
+            message.appendChild(messageContent);
+            conversationContainer.appendChild(message);
+            conversationContainer.scrollTop = conversationContainer.scrollHeight;
+        }
+
+        populateVoiceList();
+        if (synth.onvoiceschanged !== undefined) {
+            synth.onvoiceschanged = populateVoiceList;
+        }
+
+        speakButton.addEventListener('click', async () => {
+            const userQuery = textInput.value;
+
+            if (userQuery === '') {
+                return;
+            }
+
+            addMessage(userQuery, 'user');
+            textInput.value = '';
+
+            try {
+                const response = await fetch(`ask`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ user_query: userQuery })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const data = await response.json();
+
+                const text = data.ai_response;
+                addMessage(text, 'ai');
+                const words = text.split(' ');
+
+                if (synth.speaking) {
+                    console.error('speechSynthesis.speaking');
+                    return;
+                }
+
+                if (text !== '') {
+                    currentUtterance = new SpeechSynthesisUtterance(text);
+                    currentUtterance.voice = voices[voiceSelect.value];
+                    currentUtterance.pitch = 1; // You can adjust the pitch value
+                    currentUtterance.rate = 1; // You can adjust the rate value
+                    currentUtterance.onboundary = (event) => {
+                        const word = words.shift();
+                        if (word) {
+                            textDisplay.textContent = word;
+                            mouthImage.style.display = 'none';
+                            talkingHead.style.display = 'block';
+                        }
+                    };
+
+                    currentUtterance.onend = () => {
+                        textDisplay.textContent = '';
+                        mouthImage.style.display = 'block';
+                        stopButton.style.display = 'none';
+                    };
+
+                    synth.speak(currentUtterance);
+                    stopButton.style.display = 'inline';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+        stopButton.addEventListener('click', () => {
+            if (synth.speaking && currentUtterance) {
+                synth.cancel();
+                textDisplay.textContent = '';
+                mouthImage.style.display = 'block';
+                stopButton.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

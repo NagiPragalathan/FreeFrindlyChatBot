@@ -1,0 +1,27 @@
+python and Ai mathiru [Ai and Iot] podu
+
+mudeja technology ah abstract layea menton panra
+
+abstract la mukeyama [iot device] antha idea va mention pannu
+priority
+- Iot
+- Ai
+- Blockchain
+ethula podu first line kooda theava lla
+
+
+--------------------------------------------------------------
+
+Artificial Intelligence in Healthcare
+ithula "AI acts as Personal assistant in the name of virtual doctor which
+would take care of the users health." "like a actual person" itha add panniru
+
+
+IOT Integration
+ithula "medical kit" onu and "oru city ku oru device peasunom la" athaum add pannu athu seperate ah varum
+
+
+Language & Framework/Library
+python, js, html, css, django, g4f, web3, serial.
+Database
+*SqLite3*

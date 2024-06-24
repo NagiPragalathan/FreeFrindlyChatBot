@@ -22,5 +22,6 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("chat-with-bot/", chatwithbot, name="chat"), 
     path("ask", apichatwithbot, name="apichat"), 
+    path("chat", render_chat, name="ai_chat"), 
     path("", chatwithbot, name="chat")
 ]
