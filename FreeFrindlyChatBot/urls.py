@@ -21,5 +21,6 @@ from base.views import *
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("chat-with-bot/", chatwithbot, name="chat"), 
+    path("ask", apichatwithbot, name="apichat"), 
     path("", chatwithbot, name="chat")
 ]
