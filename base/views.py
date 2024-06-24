@@ -39,19 +39,37 @@ def apichatwithbot(request):
             # Get the JSON body from the request
             request_data = json.loads(request.body.decode('utf-8'))
             user_query = request_data.get('user_query', '')
-            print(user_query)
+            language = request_data.get('language', 'english')
+            print(user_query, language)
 
             if not user_query:
                 return JsonResponse({"error": "No user query provided."}, status=400)
 
             # Initialize the g4f client
             client = Client()
+            system = f"""
+                1. you are a useful AI to give the answers about medical to the user in language of {language} 
+                2. whatever language the input can be but you should response in {language}. 
+                3. Note: Dont Give readme just give plain text.
+                4. the response should be in {language}
+            """
+            user = f""" 
+            Note:
+            1. answer should be in {language}.
+            2. Dont give any of the other ack or any unwanted text.
+            3. just give the answer of query.
+            4. Note: Dont Give readme just give plain text.
+            
+            Question:
+            {user_query}.
+            """
+            print(system)
 
             # Create a chat completion with the user's query
             chat_completion = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
-                    {"system": "you are a useful AI to give the answers about medical to the user in English. Note: Dont Give readme just give plain text.", "role": "user", "content": user_query}
+                    {"system": system, "role": "user", "content": user}
                 ]
             )
 

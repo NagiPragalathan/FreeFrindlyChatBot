@@ -114,7 +114,7 @@
             background: darkmagenta;
         }
         
-        #voice-select {
+        #voice-select, #language-select {
             margin-top: 10px;
             font-size: 18px;
             padding: 5px;
@@ -165,7 +165,6 @@
         *::-webkit-scrollbar {
             width: 3px;
             border-radius: 10px;
-
         }
         
         *::-webkit-scrollbar-track {
@@ -187,7 +186,6 @@
         * {
             scrollbar-width: thin;
             scrollbar-color: #cbcbcb #f0f0f0;
-            
         }
         
     </style>
@@ -207,6 +205,7 @@
                     <button id="stop-button">Stop</button>
                     <button id="voice-input-button">Voice Input</button>
                 </div>
+                <select id="language-select"></select>
                 <select id="voice-select"></select>
             </div>
             <div class="container">
@@ -233,12 +232,12 @@
         const speakButton = document.getElementById('speak-button');
         const stopButton = document.getElementById('stop-button');
         const voiceInputButton = document.getElementById('voice-input-button');
+        const languageSelect = document.getElementById('language-select');
         const voiceSelect = document.getElementById('voice-select');
         const conversationContainer = document.getElementById('conversation-container');
 
         const synth = window.speechSynthesis;
         const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        recognition.lang = 'en-US';
         recognition.interimResults = false;
 
         let voices = [];
@@ -255,6 +254,41 @@
             });
         }
 
+        function populateLanguageList() {
+            const languages = [
+            { code: 'en-US', name: 'English (United States)' },
+            { code: 'es-ES', name: 'Spanish (Spain)' },
+            { code: 'fr-FR', name: 'French (France)' },
+            { code: 'de-DE', name: 'German (Germany)' },
+            { code: 'it-IT', name: 'Italian (Italy)' },
+            { code: 'ja-JP', name: 'Japanese (Japan)' },
+            { code: 'ko-KR', name: 'Korean (South Korea)' },
+            { code: 'zh-CN', name: 'Chinese (China)' },
+            { code: 'ru-RU', name: 'Russian (Russia)' },
+            { code: 'pt-BR', name: 'Portuguese (Brazil)' },
+            { code: 'ta-IN', name: 'Tamil (India)' },
+            { code: 'hi-IN', name: 'Hindi (India)' },
+            { code: 'te-IN', name: 'Telugu (India)' },
+            { code: 'mr-IN', name: 'Marathi (India)' },
+            { code: 'bn-IN', name: 'Bengali (India)' },
+            { code: 'gu-IN', name: 'Gujarati (India)' },
+            { code: 'kn-IN', name: 'Kannada (India)' },
+            { code: 'ml-IN', name: 'Malayalam (India)' },
+            { code: 'or-IN', name: 'Odia (India)' },
+            { code: 'pa-IN', name: 'Punjabi (India)' },
+            { code: 'as-IN', name: 'Assamese (India)' },
+            { code: 'ur-IN', name: 'Urdu (India)' },
+                // Add more languages as needed
+            ];
+            languageSelect.innerHTML = '';
+            languages.forEach((lang) => {
+                const option = document.createElement('option');
+                option.textContent = lang.name;
+                option.value = lang.code;
+                languageSelect.appendChild(option);
+            });
+        }
+
         function addMessage(content, sender) {
             const message = document.createElement('div');
             message.classList.add('message', sender === 'user' ? 'user-message' : 'ai-message');
@@ -267,9 +301,15 @@
         }
 
         populateVoiceList();
+        populateLanguageList();
+
         if (synth.onvoiceschanged !== undefined) {
             synth.onvoiceschanged = populateVoiceList;
         }
+
+        languageSelect.addEventListener('change', () => {
+            recognition.lang = languageSelect.value;
+        });
 
         speakButton.addEventListener('click', async () => {
             const userQuery = textInput.value;
@@ -285,6 +325,7 @@
         });
 
         voiceInputButton.addEventListener('click', () => {
+            recognition.lang = languageSelect.value;
             recognition.start();
         });
 
@@ -299,13 +340,16 @@
         });
 
         async function processQuery(query) {
+            const language = languageSelect.options[languageSelect.selectedIndex].text;
+            console.log(language, query)
+
             try {
                 const response = await fetch('/ask', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ user_query: query })
+                    body: JSON.stringify({ user_query: query, language: language })
                 });
 
                 if (!response.ok) {
@@ -325,7 +369,8 @@
 
                 if (text !== '') {
                     currentUtterance = new SpeechSynthesisUtterance(text);
-                    currentUtterance.voice = voices[voiceSelect.value];
+                    const selectedVoice = voices.find(voice => voice.lang.startsWith(languageSelect.value)) || voices[voiceSelect.value];
+                    currentUtterance.voice = selectedVoice;
                     currentUtterance.pitch = 1; // You can adjust the pitch value
                     currentUtterance.rate = 1; // You can adjust the rate value
                     currentUtterance.onboundary = (event) => {
