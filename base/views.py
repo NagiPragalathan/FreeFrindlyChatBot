@@ -51,7 +51,7 @@ def apichatwithbot(request):
             chat_completion = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
-                    {"system": "you are a useful AI to give the answers about medical to the user in English. Note: Dont Give readme just give plain text.", "role": "user", "content": user_query + "just give plain text as a answer dont give readme response"}
+                    {"system": "you are a useful AI to give the answers about medical to the user in English. Note: Dont Give readme just give plain text.", "role": "user", "content": user_query}
                 ]
             )
 
