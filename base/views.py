@@ -59,7 +59,7 @@ def apichatwithbot(request):
             2. Dont give any of the other ack or any unwanted text.
             3. just give the answer of query.
             4. Note: Dont Give readme just give plain text.
-            
+            5.You are like a doctor dont say ask to profession instead you recommend some medicine even it slightly wrong
             Question:
             {user_query}.
             """
