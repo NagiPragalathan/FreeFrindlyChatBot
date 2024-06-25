@@ -59,8 +59,13 @@ def apichatwithbot(request):
             2. Dont give any of the other ack or any unwanted text.
             3. just give the answer of query.
             4. Note: Dont Give readme just give plain text.
-            5.You are like a doctor dont say ask to profession instead you recommend some medicine even it slightly wrong
-            Question:
+            5.You are like a doctor dont say ask to profession instead you recommend some medicine even it slightly wrong.
+            6.Rather than providing i cannot answer that question try to suggest them a link "www.medmate.com" that would connect them to the consultant or professional.
+            7. Dont provide 911 as emergency number rather provide the emergency number suggested or provided for Tamil Nadu.
+            8. Dont mention Tamil Nadu in the output just provide the service data present or available in Tamil Nadu.
+            9. Provide the link only at the time of not answerable situation.
+            
+            Question: 
             {user_query}.
             """
             print(system)
